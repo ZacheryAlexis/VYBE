@@ -1,0 +1,148 @@
+:root {
+   --vybe-navy: #0033A0; /* primary navy */
+   --vybe-navy-dark: #002060; /* darker navy */
+   --vybe-orange: #FF6A00; /* accent orange */
+   --vybe-bg: #071427; /* dark background */
+   --vybe-text: #E6F0FF; /* light text */
+   --vybe-card: #0b1730; /* card / panel background */
+   --vybe-muted: #9fb0d9; /* muted text */
+}
+
+body {
+   font-family: 'Inter', 'Segoe UI', Roboto, Arial, sans-serif;
+   font-size: 16px;
+   background-color: var(--vybe-bg);
+   color: var(--vybe-text);
+   margin: 0;
+   padding: 0;
+   overflow-x: hidden;
+}
+
+h1 {
+   font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+   font-size: 1.5rem;
+   color: var(--vybe-text);
+   margin: 0;
+   padding: 0;
+}
+
+h2 {
+   font-family: 'Inter', Tahoma, sans-serif;
+   font-size: 1.05rem;
+   color: var(--vybe-muted);
+   margin: 0;
+   padding: 0;
+}
+
+h3 { 
+   font-size: 1rem;
+   color: var(--vybe-text);
+   margin: 0;
+}
+
+h4 {
+   font-size: 0.95rem;
+   color: var(--vybe-navy-dark);
+   margin: 0;
+   padding: 0;
+}
+
+main {
+   padding: 16px;
+   float: left;
+   width: 60%;
+   height: 100%;
+   background: transparent;
+}
+
+main table {
+   padding: 4px;
+}
+
+main td {
+   padding: 4px;
+}
+
+header {
+   padding: 8px 12px;
+   height: auto;
+   width: 100%;
+}
+
+nav {
+   padding: 12px;
+   background-color: var(--vybe-navy);
+   color: white;
+   width: 20%;
+   box-shadow: 0 2px 8px rgba(0,0,0,0.6);
+}
+
+a, a:link {
+   color: var(--vybe-orange);
+}
+
+nav a, nav a:link {
+   color: #ffffff;
+   text-decoration: none;
+}
+
+nav a:visited {
+   color: #e6fffa;
+}
+
+nav a:hover {
+   color: #ffffff;
+}
+
+input {
+   border: 1px solid rgba(255,255,255,0.06);
+   background-color: var(--vybe-card);
+   color: var(--vybe-text);
+   border-radius: 6px;
+   padding: 6px 8px;
+}
+
+input[type=submit] {
+   font-family: 'Segoe UI', Arial, sans-serif;
+   font-size: 0.95rem;
+   background-color: var(--vybe-orange);
+   color: white;
+   border: none;
+   cursor: pointer;
+   padding: 8px 12px;
+   border-radius: 6px;
+   box-shadow: 0 2px 6px rgba(255,106,0,0.18);
+}
+
+input:focus {
+   outline: none;
+   box-shadow: 0 0 0 4px rgba(0,51,160,0.12);
+}
+
+.btn-ghost {
+   background: transparent;
+   color: var(--vybe-orange);
+   border: 1px solid rgba(255,106,0,0.18);
+   padding: 6px 10px;
+   border-radius: 6px;
+}
+
+.accent-link {
+   color: var(--vybe-orange);
+}
+
+footer {
+   background-color: var(--vybe-navy-dark);
+   color: #fff;
+   box-shadow: 0 -4px 12px rgba(0,0,0,0.6);
+}
+
+/* Panels and containers */
+.panel {
+  background: var(--vybe-card);
+  color: var(--vybe-text);
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.6);
+}
+   

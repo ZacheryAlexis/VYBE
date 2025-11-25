@@ -1,0 +1,29 @@
+POST http://localhost:3000/additem.test.php
+Content-Type: application/x-www-form-urlencoded
+
+
+&itemID=300
+&itemName=Gibson SG
+&categoryID=100
+&listPrice=2599.00
+
+###
+GET http://localhost:3000/listitems.test.php
+
+###
+POST http://localhost:3000/changeitem.test.php
+Content-Type: application/x-www-form-urlencoded
+
+
+&itemID=1000
+&itemName=Fender Precision
+&categoryID=100
+&listPrice=499
+
+
+###
+POST http://localhost:3000/removeitem.test.php
+Content-Type: application/x-www-form-urlencoded
+
+
+&itemID=1000

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <title>Car dropdown test</title>
+   <script>
+       function getmodels() {
+           var select = document.getElementById("make");
+           var make = select.options[select.selectedIndex].value;
+           var URL = "ajaxcars.php?make=" + make;
+           console.log("URL: " + URL);
+           var request = new XMLHttpRequest();
+           request.open("GET", URL);
+           request.onreadystatechange = function () {
+               if (request.readyState == 4 && request.status == 200) {
+                   var models = request.responseText.split(',');
+                   var model = document.getElementById('model');
+                   if (model) {
+                       model.innerHTML = "";
+                       for (i = 0; i < models.length; i++) {
+                           model.innerHTML += "<option value='" + models[i] +
+                               "'>" + models[i] + "</option>";
+                       }
+                   }
+                }
+           }
+           request.send();
+       }
+   </script>
+</head>
+<body>
+   <h2>Find your car</h2>
+   Make:
+   <select id="make" onchange="getmodels()">
+       <option value="">Select the make</option>
+       <option value="buick">Buick</option>
+       <option value="chevy">Chevy</option>
+       <option value="dodge">Dodge</option>
+       <option value="ford">Ford</option>
+       <option value="ferrari">Ferrari</option>
+       <option value="mercedes">Mercedes</option>
+
+   </select><br><br>
+   Model:
+   <select id="model">
+       <option value="">Select make first</option>
+   </select>
+</body>
+</html>

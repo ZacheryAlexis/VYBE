@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <title>Testing DOM properties</title>
+</head>
+<body>
+   <h1>This is the heading of the web page</h1>
+   <p>This is sample text</p>
+   <br>
+   <button type="button" onclick="changeme('red')"> Change color to red</button>
+   <button type="button" onclick="changeme('blue')"> Change color to blue</button>
+   <script>
+       function changeme(color) {
+           document.querySelector("h1").style.color =
+color;
+       }
+   </script>
+</body>
+</html>
