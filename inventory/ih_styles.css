@@ -16,6 +16,9 @@ body {
    margin: 0;
    padding: 0;
    overflow-x: hidden;
+   min-height: 100vh;
+   display: flex;
+   flex-direction: column;
 }
 
 h1 {
@@ -75,6 +78,20 @@ nav {
    color: white;
    width: 20%;
    box-shadow: 0 2px 8px rgba(0,0,0,0.6);
+   overflow: hidden;
+}
+
+nav form {
+   margin: 8px 0;
+   max-width: 100%;
+}
+
+nav form input[type="text"] {
+   max-width: 120px;
+}
+
+nav form input[type="submit"] {
+   margin-top: 4px;
 }
 
 a, a:link {
@@ -135,6 +152,11 @@ footer {
    background-color: var(--vybe-navy-dark);
    color: #fff;
    box-shadow: 0 -4px 12px rgba(0,0,0,0.6);
+   margin-top: 120px;
+   clear: both;
+   position: relative;
+   bottom: 0;
+   width: 100%;
 }
 
 /* Panels and containers */

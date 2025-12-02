@@ -31,6 +31,8 @@ foreach($categories as $category) {
    </select>
    <br>
    <input type="submit" onClick="button_click(0)" name="displaycategory" value="View Category">
+   <?php if (!empty($_SESSION['is_admin'])) { ?>
    <input type="submit" onClick="button_click(1)" name="deletecategory" value="Delete Category">
    <input type="submit" onClick="button_click(2)" name="updatecategory" value="Update Category">
+   <?php } ?>
 </form>

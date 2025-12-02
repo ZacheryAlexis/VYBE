@@ -1,6 +1,6 @@
 <?php
 require_once("item.php");
-if (isset($_SESSION['login'])) {
+if (!empty($_SESSION['is_admin'])) {
 $itemID = $_POST['itemID'];
 $item = Item::findItem($itemID);
 $result = $item->removeItem();
@@ -9,7 +9,7 @@ if ($result)
 else
    echo "<h2>Sorry, problem removing item $itemID</h2>\n";
 } else {
-   echo "<H2>Please login first</h2>\n";
+   echo "<H2>Admin access required</h2>\n";
 }
 
 ?>

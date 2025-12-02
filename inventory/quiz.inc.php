@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 if (!isset($_SESSION['user_id'])) {
     echo "<p>Please <a href=\"index.php?content=user_login\">log in</a> or <a href=\"index.php?content=newuser\">create an account</a> to take the quiz.</p>";
     return;

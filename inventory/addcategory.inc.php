@@ -1,6 +1,6 @@
 <?php
 // include("category.php");
-if (isset($_SESSION['login'])) {
+if (!empty($_SESSION['is_admin'])) {
    $categoryID = filter_input(INPUT_POST, 'categoryID', FILTER_VALIDATE_INT);
    if ((trim($categoryID) == '') or (!is_int($categoryID))) {
        echo "<h2>Sorry, you must enter a valid category ID number</h2>\n";
@@ -17,6 +17,6 @@ if (isset($_SESSION['login'])) {
            echo "<h2>Sorry, there was a problem adding that category</h2>\n";
    }
 } else {
-   echo "<h2>Please log in first</h2>\n";
+   echo "<h2>Admin access required</h2>\n";
 }
 ?>

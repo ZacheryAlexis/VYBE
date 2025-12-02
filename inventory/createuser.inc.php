@@ -28,16 +28,15 @@ if ($stmt->num_rows > 0) {
 }
 $stmt->close();
 
-// hash password (store SHA-256 to match other SQL examples)
-$hashed = hash('sha256', $password);
-
-$insert = $db->prepare("INSERT INTO users (emailAddress, password, firstName, lastName) VALUES (?, ?, ?, ?)");
-$insert->bind_param('ssss', $email, $hashed, $first, $last);
+// Use MySQL's SHA2 function to hash password (matches database setup)
+$insert = $db->prepare("INSERT INTO users (emailAddress, password, firstName, lastName) VALUES (?, SHA2(?, 256), ?, ?)");
+$insert->bind_param('ssss', $email, $password, $first, $last);
 $ok = $insert->execute();
 if ($ok) {
     $userID = $insert->insert_id;
     $_SESSION['user_id'] = $userID;
     $_SESSION['user_name'] = trim($first . ' ' . $last) ?: $email;
+    $_SESSION['is_admin'] = false;
     // after creating account, send user to quiz
     header('Location: index.php?content=quiz');
     exit();

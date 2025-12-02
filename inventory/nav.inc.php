@@ -1,6 +1,6 @@
 <table width="100%" cellpadding="3">
    <?php
-   if (!isset($_SESSION['login'])) {
+   if (empty($_SESSION['is_admin'])) {
    ?>
        <tr>
               <td>
@@ -9,7 +9,7 @@
        </tr>
    <?php
    } else {
-       echo "<td><h3>Welcome, {$_SESSION['login']}</h3></td>\n";
+       echo "<td><h3>Welcome, " . htmlspecialchars($_SESSION['user_name'] ?? 'Admin') . "</h3></td>\n";
    ?>
        <tr>
             <td><img src="images/home.png" alt="Home Icon" width="12" height="12">&nbsp;

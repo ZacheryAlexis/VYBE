@@ -1,6 +1,6 @@
 <?php
 // include("item.php");
-if (isset($_SESSION['login'])) {
+if (!empty($_SESSION['is_admin'])) {
    $itemID = $_POST['itemID'];
    $answer = $_POST['answer'];
    if ($answer == "Update Item") {
@@ -18,9 +18,7 @@ if ($result) {
 }
 } else {
     echo "<h2>Update Canceled for item $itemID</h2>\n";
-   }
-} else {
-   echo "<h2>Please login first</h2>\n";
 }
-
-?>
+} else {
+echo "<h2>Admin access required</h2>\n";
+}?>

@@ -1,7 +1,7 @@
 <?php
 error_log("\$_POST " . print_r($_POST, true));
 require_once("category.php");
-if (isset($_SESSION['login'])) {
+if (!empty($_SESSION['is_admin'])) {
    if (!isset($_POST['categoryID']) or (!is_numeric($_POST['categoryID']))) {
       ?>
              <h2>You did not select a valid categoryID to delete.</h2>
@@ -18,7 +18,7 @@ if (isset($_SESSION['login'])) {
       echo "<h2>Sorry, problem removing category $categoryID</h2>\n";
    }
 } else {
-   echo "<H2>Please login first</h2>\n";
+   echo "<H2>Admin access required</h2>\n";
 }
 
 ?>

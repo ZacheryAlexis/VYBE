@@ -34,8 +34,9 @@ foreach ($items as $item) {
    </select>
    <br>
    <input type="submit" onClick="button_click(0)" name="displayitem" value="View Item">
+   <?php if (!empty($_SESSION['is_admin'])) { ?>
    <input type="submit" onClick="button_click(1)" name="deleteitem" value="Delete Item">
    <input type="submit" onClick="button_click(2)" name="updateitem" value="Update Item">
-
+   <?php } ?>
 </form>
 

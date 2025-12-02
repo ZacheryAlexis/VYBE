@@ -21,7 +21,9 @@
 </style>
 
 <?php
-if (!isset($_POST['itemID']) or (!is_numeric($_POST['itemID']))) {
+if (empty($_SESSION['is_admin'])) {
+    echo "<h2>Admin access required</h2>\n";
+} else if (!isset($_POST['itemID']) or (!is_numeric($_POST['itemID']))) {
 ?>
    <h2>You did not select a valid itemID value</h2>
    <a href="index.php?content=listitems">List items</a>

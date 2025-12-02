@@ -10,6 +10,9 @@ if (isset($_SESSION['user_id'])) {
 if (isset($_SESSION['user_name'])) {
   unset($_SESSION['user_name']);
 }
+if (isset($_SESSION['is_admin'])) {
+  unset($_SESSION['is_admin']);
+}
 // Optionally destroy the session entirely
 // session_unset(); session_destroy();
 

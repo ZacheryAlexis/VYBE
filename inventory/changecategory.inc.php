@@ -1,6 +1,6 @@
 <?php
 require_once("category.php");
-if (isset($_SESSION['login'])) {
+if (!empty($_SESSION['is_admin'])) {
 $categoryID = $_POST['categoryID'];
 $answer = $_POST['answer'];
 if ($answer == "Update Category") {
@@ -18,7 +18,7 @@ if ($result) {
    echo "<h2>Update Canceled for category $categoryID</h2>\n";
 }
 } else {
-echo "<h2>Please login first</h2>\n";
+echo "<h2>Admin access required</h2>\n";
 }
 
 ?>

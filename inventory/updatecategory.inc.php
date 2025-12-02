@@ -20,7 +20,9 @@
    }
 </style>
 <?php
-if (!isset($_POST['categoryID']) or (!is_numeric($_POST['categoryID']))) {
+if (empty($_SESSION['is_admin'])) {
+    echo "<h2>Admin access required</h2>\n";
+} else if (!isset($_POST['categoryID']) or (!is_numeric($_POST['categoryID']))) {
 ?>
  <h2>You did not select a valid categoryID to update.</h2>
  <a href="index.php?content=listcategories">List Categories</a>

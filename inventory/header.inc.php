@@ -49,6 +49,9 @@
     gap:8px;
     align-items:center;
   }
+  .top-actions .right {
+    margin-right: 20px;
+  }
   .top-actions .right a {
     color: #fff;
     background: var(--vybe-navy);
