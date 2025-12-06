@@ -1,4 +1,5 @@
-<img width="647" height="458" alt="image" src="https://github.com/user-attachments/assets/192ae5f3-f8d6-49d1-8e5c-4bf70458aadc" />
+
+<img width="4096" height="4096" alt="VYBELogoWhite" src="https://github.com/user-attachments/assets/a3c0f1c0-6582-4ae5-9e9b-cf0b80a87d0f" />
 
 # Vybe — Campus Fragrances
 
