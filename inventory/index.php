@@ -1,4 +1,7 @@
 <?php
+ini_set('display_errors', 0);
+ini_set('display_startup_errors', 0);
+error_reporting(0);
 ob_start();
 session_start();
 include("category.php");
@@ -9,14 +12,14 @@ include("item.php");
 <head>
     <title>Vybe — Campus Scents</title>
     <link rel="stylesheet" type="text/css" href="ih_styles.css">
-    <link rel="icon" type="image/png" href="images/logo.png">
+    <link rel="icon" type="image/png" href="images/VYBELogoWhite.png">
 </head>
 <body>
    <header>
        <?php include("header.inc.php"); ?>
    </header>
-   <section style="height: 375px;">
-       <nav style="float: left; height: 100%; min-width: 175px; width: auto;">
+   <section style="min-height: 500px; height: auto;">
+       <nav style="float: left; height: 100%;">
            <?php include("nav.inc.php"); ?>
        </nav>
        <main>

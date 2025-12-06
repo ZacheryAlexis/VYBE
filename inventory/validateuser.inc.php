@@ -1,9 +1,16 @@
 <?php
 require_once('database.php');
+require_once('security.php');
 
-// only start session if none exists
+// Initialize secure session
+init_secure_session();
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
+}
+
+// Validate CSRF token
+if (!validate_csrf_token()) {
+    die('<h3>Security error. Please try again.</h3><a href="index.php?content=user_login">Back</a>');
 }
 
 $email = filter_var($_POST['emailAddress'] ?? '', FILTER_VALIDATE_EMAIL);
@@ -15,6 +22,13 @@ if (!$email || !$password) {
     exit();
 }
 
+// Rate limiting check
+if (!check_rate_limit($email, 5, 900)) {
+    echo "<h3>Too many login attempts. Please try again in 15 minutes.</h3>";
+    echo "<a href=\"index.php\">Home</a>";
+    exit();
+}
+
 $db = getDB();
 if (!$db || (isset($db->connect_errno) && $db->connect_errno)) {
     // log server-side, show friendly message to user
@@ -23,18 +37,15 @@ if (!$db || (isset($db->connect_errno) && $db->connect_errno)) {
     exit();
 }
 
-// Current approach: comparing SHA256 hash using MySQL's SHA2 function to match database
-// Note: see section B for recommended password approach.
-
-// First, check if this is an admin login
-$stmt = $db->prepare("SELECT adminID, firstName, lastName FROM admins WHERE emailAddress = ? AND password = SHA2(?, 256)");
+// Check if this is an admin login
+$stmt = $db->prepare("SELECT adminID, firstName, lastName, password FROM admins WHERE emailAddress = ?");
 if (!$stmt) {
     error_log('Prepare failed: ' . $db->error);
     echo "<h3>Login failed due to a server error.</h3>";
     exit();
 }
 
-$stmt->bind_param('ss', $email, $password);
+$stmt->bind_param('s', $email);
 if (!$stmt->execute()) {
     error_log('Execute failed: ' . $stmt->error);
     echo "<h3>Login failed due to a server error.</h3>";
@@ -42,28 +53,35 @@ if (!$stmt->execute()) {
     exit();
 }
 
-$stmt->bind_result($adminID, $first, $last);
+$stmt->bind_result($adminID, $first, $last, $storedHash);
 $isAdmin = $stmt->fetch();
 $stmt->close();
 
-if ($isAdmin) {
+if ($isAdmin && verify_password($password, $storedHash)) {
     // Admin login successful
     $_SESSION['user_id'] = $adminID;
     $_SESSION['user_name'] = trim($first . ' ' . $last) ?: $email;
     $_SESSION['is_admin'] = true;
+    
+    // Regenerate session ID
+    regenerate_session_on_login();
+    
+    // Clear rate limit
+    clear_rate_limit($email);
+    
     header('Location: index.php');
     exit();
 }
 
 // Not an admin, check regular users table
-$stmt = $db->prepare("SELECT userID, firstName, lastName, quizResults FROM users WHERE emailAddress = ? AND password = SHA2(?, 256)");
+$stmt = $db->prepare("SELECT userID, firstName, lastName, quizResults, password FROM users WHERE emailAddress = ?");
 if (!$stmt) {
     error_log('Prepare failed: ' . $db->error);
     echo "<h3>Login failed due to a server error.</h3>";
     exit();
 }
 
-$stmt->bind_param('ss', $email, $password);
+$stmt->bind_param('s', $email);
 if (!$stmt->execute()) {
     error_log('Execute failed: ' . $stmt->error);
     echo "<h3>Login failed due to a server error.</h3>";
@@ -71,16 +89,27 @@ if (!$stmt->execute()) {
     exit();
 }
 
-$stmt->bind_result($userID, $first, $last, $quizResults);
+$stmt->bind_result($userID, $first, $last, $quizResults, $storedHash);
 $fetched = $stmt->fetch();
 $stmt->close();
 $db->close();
 
-if ($fetched) {
+if ($fetched && verify_password($password, $storedHash)) {
     // Regular user login successful
     $_SESSION['user_id'] = $userID;
     $_SESSION['user_name'] = trim($first . ' ' . $last) ?: $email;
     $_SESSION['is_admin'] = false;
+    
+    // Regenerate session ID
+    regenerate_session_on_login();
+    
+    // Clear rate limit
+    clear_rate_limit($email);
+    
+    // Load saved cart from database
+    require_once('cart_db.php');
+    syncCartOnLogin($userID);
+    
     if (empty($quizResults)) {
         header('Location: index.php?content=quiz');
         exit();

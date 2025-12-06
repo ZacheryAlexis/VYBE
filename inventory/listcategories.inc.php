@@ -16,23 +16,33 @@
        }
    }
 </script>
-<h2>Select Category</h2>
-<form name="categories" method="post">
-   <select  ondblclick="listbox_dblclick()"  name="categoryID" size="20">
+
+<div class="panel" style="max-width: 700px; margin: 0 auto;">
+    <h2 style="color: var(--vybe-orange); margin-top: 0;">Manage Categories</h2>
+    <p style="color: var(--vybe-muted); margin-bottom: 20px;">Select a category to view details or double-click to open.</p>
+    
+    <form name="categories" method="post">
+        <select ondblclick="listbox_dblclick()" name="categoryID" size="15" 
+                style="width: 100%; padding: 12px; background: var(--vybe-bg); color: var(--vybe-text); border: 1px solid var(--vybe-navy); border-radius: 8px; font-size: 1rem; margin-bottom: 15px;">
 <?php
-// include("category.php");
 $categories = Category::getCategories();
 foreach($categories as $category) {
    $categoryID = $category->categoryID;
-   $name = $categoryID . " - " . $category->categoryCode . ", " . $category->categoryName;
+   $name = "#$categoryID — " . $category->categoryCode . " — " . $category->categoryName;
    echo "<option value=\"$categoryID\">$name</option>\n";
-       }
-       ?>
-   </select>
-   <br>
-   <input type="submit" onClick="button_click(0)" name="displaycategory" value="View Category">
-   <?php if (!empty($_SESSION['is_admin'])) { ?>
-   <input type="submit" onClick="button_click(1)" name="deletecategory" value="Delete Category">
-   <input type="submit" onClick="button_click(2)" name="updatecategory" value="Update Category">
-   <?php } ?>
-</form>
+}
+?>
+        </select>
+        
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <input type="submit" onClick="button_click(0)" name="displaycategory" value="View Category" 
+                   style="background: var(--vybe-orange); color: white; padding: 12px 24px; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer;">
+            <?php if (!empty($_SESSION['is_admin'])) { ?>
+            <input type="submit" onClick="button_click(1)" name="deletecategory" value="Delete Category" 
+                   style="background: #d32f2f; color: white; padding: 12px 24px; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer;">
+            <input type="submit" onClick="button_click(2)" name="updatecategory" value="Update Category" 
+                   style="background: var(--vybe-navy); color: white; padding: 12px 24px; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer;">
+            <?php } ?>
+        </div>
+    </form>
+</div>

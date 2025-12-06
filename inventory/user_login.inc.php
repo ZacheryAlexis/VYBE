@@ -1,9 +1,11 @@
+<?php require_once('security.php'); ?>
 <h2>User Login</h2>
 <form action="index.php" method="post">
   <label>Email:</label><br>
   <input type="email" name="emailAddress" required><br><br>
   <label>Password:</label><br>
   <input type="password" name="password" required><br><br>
+  <?php csrf_field(); ?>
   <input type="hidden" name="content" value="validateuser">
   <input type="submit" value="Login">
 </form>
