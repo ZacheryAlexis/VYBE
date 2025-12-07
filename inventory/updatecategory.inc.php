@@ -31,18 +31,18 @@ if (empty($_SESSION['is_admin'])) {
                     
                     <label for="categoryCode" style="color: var(--vybe-text); font-weight: 500;">Category Code:</label>
                     <input type="text" name="categoryCode" id="categoryCode" value="<?php echo htmlspecialchars($category->categoryCode); ?>" required 
-                           style="padding: 10px; background: var(--vybe-bg); color: var(--vybe-text); border: 1px solid var(--vybe-navy); border-radius: 6px; font-size: 1rem;">
+                           style="padding: 10px; background: var(--vybe-bg); color: var(--vybe-text); border: 1px solid rgba(199,185,255,0.3); border-radius: 6px; font-size: 1rem;">
                     
                     <label for="categoryName" style="color: var(--vybe-text); font-weight: 500;">Category Name:</label>
                     <input type="text" name="categoryName" id="categoryName" value="<?php echo htmlspecialchars($category->categoryName); ?>" required 
-                           style="padding: 10px; background: var(--vybe-bg); color: var(--vybe-text); border: 1px solid var(--vybe-navy); border-radius: 6px; font-size: 1rem;">
+                           style="padding: 10px; background: var(--vybe-bg); color: var(--vybe-text); border: 1px solid rgba(199,185,255,0.3); border-radius: 6px; font-size: 1rem;">
                 </div>
                 
                 <div style="display: flex; gap: 10px;">
                     <input type="submit" name="answer" value="Update Category" 
                            style="background: var(--vybe-orange); color: white; padding: 12px 30px; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer;">
                     <input type="submit" name="answer" value="Cancel" 
-                           style="background: var(--vybe-navy); color: white; padding: 12px 30px; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer;">
+                           style="background: rgba(199,185,255,0.2); color: var(--vybe-text); padding: 12px 30px; border: 1px solid rgba(199,185,255,0.4); border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer;">
                 </div>
                 <input type="hidden" name="categoryID" value="<?php echo $categoryID; ?>">
                 <input type="hidden" name="content" value="changecategory">

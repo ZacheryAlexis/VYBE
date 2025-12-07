@@ -80,8 +80,8 @@ if ($ok) {
     $_SESSION['quiz_completed'] = true;
     $_SESSION['matched_scent'] = $matchedScent['name'];
     $_SESSION['suggested_itemID'] = $matchedScent['itemID'];
-    // Redirect to the matched item's display page
-    header('Location: index.php?content=displayitem&itemID=' . $matchedScent['itemID']);
+    // Redirect to the quiz results page
+    header('Location: index.php?content=quizresults');
     exit();
 } else {
     echo "<p>Unable to save quiz. Please try again later.</p>";

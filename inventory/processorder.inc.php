@@ -27,6 +27,7 @@ $city = htmlspecialchars($_POST['city'] ?? '');
 $state = htmlspecialchars($_POST['state'] ?? '');
 $zip = htmlspecialchars($_POST['zip'] ?? '');
 $phone = htmlspecialchars($_POST['phone'] ?? '');
+$paymentMethod = $_POST['paymentMethod'] ?? 'card';
 
 // Calculate totals
 foreach ($cart as $item) {
@@ -48,8 +49,63 @@ $_SESSION['last_order'] = array(
     'shippingName' => $fullName,
     'shippingEmail' => $email,
     'shippingAddress' => "$address, $city, $state $zip",
-    'orderDate' => date('F j, Y g:i A')
+    'orderDate' => date('F j, Y g:i A'),
+    'paymentMethod' => $paymentMethod
 );
+
+// If PayPal, redirect to PayPal payment page (simulated)
+if ($paymentMethod === 'paypal') {
+    // Store pending order data
+    $_SESSION['pending_order'] = array(
+        'fullName' => $fullName,
+        'email' => $email,
+        'address' => $address,
+        'city' => $city,
+        'state' => $state,
+        'zip' => $zip,
+        'phone' => $phone
+    );
+    
+    // In a real implementation, this would redirect to PayPal API
+    // For this academic project, we'll simulate it
+    header('Location: index.php?content=paypal');
+    exit();
+}
+
+// Process credit card payment (simulated)
+// Save order to database
+require_once('database.php');
+$db = getDB();
+
+// Insert order
+$userID = $_SESSION['user_id'] ?? null;
+$orderDate = date('Y-m-d H:i:s');
+$shippingAddressFull = "$address, $city, $state $zip";
+
+$stmt = $db->prepare("
+    INSERT INTO orders (orderNumber, userID, emailAddress, fullName, shippingAddress, phoneNumber, 
+                       subtotal, tax, total, paymentMethod, orderDate, orderStatus)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
+");
+$stmt->bind_param('sissssddds', $orderNumber, $userID, $email, $fullName, $shippingAddressFull, 
+                  $phone, $total, $tax, $grandTotal, $paymentMethod, $orderDate);
+$stmt->execute();
+$orderID = $db->insert_id;
+$stmt->close();
+
+// Insert order items
+$itemStmt = $db->prepare("
+    INSERT INTO order_items (orderID, itemID, itemName, quantity, price)
+    VALUES (?, ?, ?, ?, ?)
+");
+
+foreach ($cart as $item) {
+    $itemStmt->bind_param('iisid', $orderID, $item['itemID'], $item['itemName'], 
+                         $item['quantity'], $item['listPrice']);
+    $itemStmt->execute();
+}
+$itemStmt->close();
+$db->close();
 
 // Clear the cart
 $_SESSION['cart'] = array();

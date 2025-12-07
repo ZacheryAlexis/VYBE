@@ -87,6 +87,30 @@ $searchQuery = isset($_GET['q']) ? trim($_GET['q']) : '';
     box-shadow: 0 4px 12px rgba(199,185,255,0.35);
     transform: translateY(-2px);
 }
+.stock-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+.in-stock {
+    background: rgba(72,187,120,0.2);
+    color: #48bb78;
+    border: 1px solid rgba(72,187,120,0.4);
+}
+.low-stock {
+    background: rgba(237,137,54,0.2);
+    color: #ed8936;
+    border: 1px solid rgba(237,137,54,0.4);
+}
+.out-of-stock {
+    background: rgba(245,101,101,0.2);
+    color: #f56565;
+    border: 1px solid rgba(245,101,101,0.4);
+}
 .no-results {
     text-align: center;
     padding: 60px 20px;
@@ -165,7 +189,18 @@ if (empty($searchQuery)) {
     if ($resultCount > 0) {
         echo '<div class="search-grid">';
         foreach ($results as $item) {
+            $stockQty = $item['stockQuantity'] ?? 0;
             echo '<div class="search-item">';
+            
+            // Stock badge
+            if ($stockQty <= 0) {
+                echo '<span class="stock-badge out-of-stock">Out of Stock</span>';
+            } elseif ($stockQty < 10) {
+                echo '<span class="stock-badge low-stock">Only ' . $stockQty . ' left</span>';
+            } else {
+                echo '<span class="stock-badge in-stock">In Stock</span>';
+            }
+            
             echo '<div class="category">' . htmlspecialchars($item['categoryName'] ?? 'Uncategorized') . '</div>';
             echo '<h3>' . htmlspecialchars($item['itemName']) . '</h3>';
             

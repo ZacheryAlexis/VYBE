@@ -3,6 +3,8 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+require_once('database.php');
+
 $cart = $_SESSION['cart'] ?? array();
 $total = 0;
 
@@ -11,8 +13,32 @@ if (empty($cart)) {
     exit();
 }
 
-foreach ($cart as $item) {
-    $total += $item['listPrice'] * $item['quantity'];
+// Validate stock for all items in cart
+$stockIssues = array();
+$db = getDB();
+foreach ($cart as $itemID => $cartItem) {
+    $stmt = $db->prepare("SELECT stockQuantity FROM items WHERE itemID = ?");
+    $stmt->bind_param('i', $itemID);
+    $stmt->execute();
+    $stmt->bind_result($stockQty);
+    $stmt->fetch();
+    $stmt->close();
+    
+    if ($stockQty === 0) {
+        $stockIssues[] = htmlspecialchars($cartItem['itemName']) . ' is out of stock';
+    } elseif ($cartItem['quantity'] > $stockQty) {
+        $stockIssues[] = 'Only ' . $stockQty . ' of ' . htmlspecialchars($cartItem['itemName']) . ' available';
+    }
+    
+    $total += $cartItem['listPrice'] * $cartItem['quantity'];
+}
+$db->close();
+
+// If there are stock issues, redirect to cart
+if (!empty($stockIssues)) {
+    $_SESSION['checkout_error'] = implode('. ', $stockIssues);
+    header('Location: index.php?content=cart');
+    exit();
 }
 ?>
 
@@ -96,6 +122,49 @@ foreach ($cart as $item) {
     padding-top: 20px;
     border-top: 2px solid rgba(199,185,255,0.3);
 }
+.payment-methods {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+.payment-option {
+    cursor: pointer;
+    display: block;
+}
+.payment-option input[type="radio"] {
+    display: none;
+}
+.payment-option-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 20px;
+    background: rgba(26,26,30,0.6);
+    border: 2px solid rgba(199,185,255,0.2);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    color: var(--vybe-text);
+    font-weight: 500;
+}
+.payment-option:hover .payment-option-content {
+    border-color: rgba(199,185,255,0.4);
+    background: rgba(26,26,30,0.8);
+}
+.payment-option input[type="radio"]:checked + .payment-option-content {
+    border-color: #c7b9ff;
+    background: rgba(199,185,255,0.1);
+    box-shadow: 0 0 15px rgba(199,185,255,0.2);
+}
+.payment-icon {
+    font-size: 1.5rem;
+}
+.paypal-info {
+    background: rgba(26,26,30,0.6);
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid rgba(199,185,255,0.2);
+}
 .place-order-btn {
     background: linear-gradient(135deg, var(--vybe-orange) 0%, var(--vybe-accent) 100%);
     color: white;
@@ -161,26 +230,62 @@ foreach ($cart as $item) {
             </div>
         </div>
         
-        <!-- Payment Information -->
+        <!-- Payment Method -->
         <div class="checkout-section">
+            <h3>Payment Method</h3>
+            <div class="payment-methods">
+                <label class="payment-option">
+                    <input type="radio" name="paymentMethod" value="card" checked onchange="togglePaymentSections()">
+                    <span class="payment-option-content">
+                        <i class="payment-icon">💳</i>
+                        <span>Credit / Debit Card</span>
+                    </span>
+                </label>
+                <label class="payment-option">
+                    <input type="radio" name="paymentMethod" value="paypal" onchange="togglePaymentSections()">
+                    <span class="payment-option-content">
+                        <i class="payment-icon">🅿️</i>
+                        <span>PayPal</span>
+                    </span>
+                </label>
+            </div>
+        </div>
+        
+        <!-- Payment Information (Credit Card) -->
+        <div class="checkout-section" id="cardPaymentSection">
             <h3>Payment Information</h3>
             <div class="form-group">
                 <label>Cardholder Name *</label>
-                <input type="text" name="cardName" required>
+                <input type="text" name="cardName" id="cardName">
             </div>
             <div class="form-group">
                 <label>Card Number *</label>
-                <input type="text" name="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19" required>
+                <input type="text" name="cardNumber" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19">
             </div>
             <div class="form-row">
                 <div class="form-group">
                     <label>Expiration Date *</label>
-                    <input type="text" name="expiry" placeholder="MM/YY" maxlength="5" required>
+                    <input type="text" name="expiry" id="expiry" placeholder="MM/YY" maxlength="5">
                 </div>
                 <div class="form-group">
                     <label>CVV *</label>
-                    <input type="text" name="cvv" placeholder="123" maxlength="4" required>
+                    <input type="text" name="cvv" id="cvv" placeholder="123" maxlength="4">
                 </div>
+            </div>
+        </div>
+        
+        <!-- PayPal Information -->
+        <div class="checkout-section" id="paypalPaymentSection" style="display: none;">
+            <h3>PayPal Payment</h3>
+            <p style="color: var(--vybe-text); margin-bottom: 15px;">
+                You will be redirected to PayPal to complete your payment securely.
+            </p>
+            <div class="paypal-info">
+                <p style="font-size: 14px; color: var(--vybe-text-light);">
+                    ✓ Secure payment processing<br>
+                    ✓ No credit card information stored<br>
+                    ✓ Easy checkout with your PayPal account
+                </p>
             </div>
         </div>
         
@@ -221,3 +326,40 @@ foreach ($cart as $item) {
         
     </form>
 </div>
+
+<script>
+function togglePaymentSections() {
+    const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+    const cardSection = document.getElementById('cardPaymentSection');
+    const paypalSection = document.getElementById('paypalPaymentSection');
+    
+    // Card field elements
+    const cardName = document.getElementById('cardName');
+    const cardNumber = document.getElementById('cardNumber');
+    const expiry = document.getElementById('expiry');
+    const cvv = document.getElementById('cvv');
+    
+    if (paymentMethod === 'card') {
+        cardSection.style.display = 'block';
+        paypalSection.style.display = 'none';
+        
+        // Make card fields required
+        cardName.required = true;
+        cardNumber.required = true;
+        expiry.required = true;
+        cvv.required = true;
+    } else {
+        cardSection.style.display = 'none';
+        paypalSection.style.display = 'block';
+        
+        // Remove required from card fields
+        cardName.required = false;
+        cardNumber.required = false;
+        expiry.required = false;
+        cvv.required = false;
+    }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', togglePaymentSections);
+</script>

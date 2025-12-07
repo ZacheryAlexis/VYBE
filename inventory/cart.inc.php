@@ -127,6 +127,12 @@ $total = 0;
 <div class="cart-container">
     <h2 class="cart-header">Shopping Cart</h2>
     
+    <?php if (!empty($_SESSION['checkout_error'])): ?>
+        <div style="background: rgba(245,101,101,0.2); color: #f56565; padding: 15px; border-radius: 8px; border: 1px solid rgba(245,101,101,0.4); margin-bottom: 20px;">
+            ⚠️ <?php echo htmlspecialchars($_SESSION['checkout_error']); unset($_SESSION['checkout_error']); ?>
+        </div>
+    <?php endif; ?>
+    
     <?php if (empty($cart)): ?>
         <div class="cart-empty">
             <h3 style="color: var(--vybe-muted);">Your cart is empty</h3>

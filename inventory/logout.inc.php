@@ -26,6 +26,24 @@ if (isset($_SESSION['cart'])) {
   unset($_SESSION['cart']);
 }
 
+// Clear quiz results from session
+if (isset($_SESSION['quiz_completed'])) {
+  unset($_SESSION['quiz_completed']);
+}
+if (isset($_SESSION['matched_scent'])) {
+  unset($_SESSION['matched_scent']);
+}
+if (isset($_SESSION['suggested_itemID'])) {
+  unset($_SESSION['suggested_itemID']);
+}
+
+// Clear remember me cookies
+if (isset($_COOKIE['vybe_remember'])) {
+  setcookie('vybe_remember', '', time() - 3600, '/', '', false, true);
+  setcookie('vybe_user_id', '', time() - 3600, '/', '', false, true);
+  setcookie('vybe_is_admin', '', time() - 3600, '/', '', false, true);
+}
+
 // Optionally destroy the session entirely
 // session_unset(); session_destroy();
 

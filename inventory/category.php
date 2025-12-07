@@ -58,8 +58,11 @@ class Category
    static function findCategory($categoryID)
    {
        $db = getDB();
-       $query = "SELECT * FROM categories WHERE categoryID = $categoryID";
-       $result = $db->query($query);
+       $query = "SELECT * FROM categories WHERE categoryID = ?";
+       $stmt = $db->prepare($query);
+       $stmt->bind_param('i', $categoryID);
+       $stmt->execute();
+       $result = $stmt->get_result();
        $row = $result->fetch_array(MYSQLI_ASSOC);
        if ($row) {
            $category = new Category(
@@ -67,9 +70,11 @@ class Category
                $row['categoryCode'],
                $row['categoryName']
            );
+           $stmt->close();
            $db->close();
            return $category;
        } else {
+           $stmt->close();
            $db->close();
            return NULL;
        }
@@ -79,23 +84,28 @@ class Category
        $db = getDB();
        $query = "UPDATE categories SET categoryID = ?, categoryCode = ?, " .
            "categoryName = ? " .
-           "WHERE categoryID = $this->categoryID";
+           "WHERE categoryID = ?";
        $stmt = $db->prepare($query);
        $stmt->bind_param(
-           "iss",
+           "issi",
            $this->categoryID,
            $this->categoryCode,
-           $this->categoryName
+           $this->categoryName,
+           $this->categoryID
        );
        $result = $stmt->execute();
+       $stmt->close();
        $db->close();
        return $result;
    }
    function removeCategory()
    {
        $db = getDB();
-       $query = "DELETE FROM categories WHERE categoryID = $this->categoryID";
-       $result = $db->query($query);
+       $query = "DELETE FROM categories WHERE categoryID = ?";
+       $stmt = $db->prepare($query);
+       $stmt->bind_param('i', $this->categoryID);
+       $result = $stmt->execute();
+       $stmt->close();
        $db->close();
        return $result;
    }

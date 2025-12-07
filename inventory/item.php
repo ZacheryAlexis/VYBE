@@ -6,16 +6,19 @@ class Item
    public $itemName;
    public $categoryID;
    public $listPrice;
+   public $stockQuantity;
    function __construct(
         $itemID,
         $itemName,
         $categoryID,
-        $listPrice
+        $listPrice,
+        $stockQuantity = 0
        ) {
        $this->itemID = $itemID;
        $this->itemName = $itemName;
        $this->categoryID = $categoryID;
        $this->listPrice = $listPrice;
+       $this->stockQuantity = $stockQuantity;
    }
    function __toString()
    {
@@ -52,7 +55,8 @@ class Item
                    $row['itemID'],
                    $row['itemName'],
                    $row['categoryID'],
-                   $row['listPrice']
+                   $row['listPrice'],
+                   $row['stockQuantity'] ?? 0
                );
                array_push($items, $item);
            }
@@ -66,15 +70,20 @@ class Item
    static function findItem($itemID)
    {
        $db = getDB();
-       $query = "SELECT * FROM items WHERE itemID = $itemID";
-       $result = $db->query($query);
+       $query = "SELECT * FROM items WHERE itemID = ?";
+       $stmt = $db->prepare($query);
+       $stmt->bind_param('i', $itemID);
+       $stmt->execute();
+       $result = $stmt->get_result();
        $row = $result->fetch_array(MYSQLI_ASSOC);
+       $stmt->close();
        if ($row) {
            $item = new Item(
                $row['itemID'],
                $row['itemName'],
                $row['categoryID'],
-               $row['listPrice']
+               $row['listPrice'],
+               $row['stockQuantity'] ?? 0
            );
            $db->close();
            return $item;
@@ -102,16 +111,22 @@ class Item
    function removeItem()
    {
        $db = getDB();
-       $query = "DELETE FROM items WHERE itemID = $this->itemID";
-       $result = $db->query($query);
+       $query = "DELETE FROM items WHERE itemID = ?";
+       $stmt = $db->prepare($query);
+       $stmt->bind_param('i', $this->itemID);
+       $result = $stmt->execute();
+       $stmt->close();
        $db->close();
        return $result;
    }
    static function getItemsByCategory($categoryID)
    {
        $db = getDB();
-       $query = "SELECT * from items where categoryID = $categoryID";
-       $result = $db->query($query);
+       $query = "SELECT * from items where categoryID = ?";
+       $stmt = $db->prepare($query);
+       $stmt->bind_param('i', $categoryID);
+       $stmt->execute();
+       $result = $stmt->get_result();
        if (mysqli_num_rows($result) > 0) {
            $items = array();
            while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
@@ -119,13 +134,16 @@ class Item
                    $row['itemID'],
                    $row['itemName'],
                    $row['categoryID'],
-                   $row['listPrice']
+                   $row['listPrice'],
+                   $row['stockQuantity'] ?? 0
                );
                array_push($items, $item);
            }
+           $stmt->close();
            $db->close();
            return $items;
        } else {
+           $stmt->close();
            $db->close();
            return NULL;
        }

@@ -147,6 +147,26 @@ if (!$order) {
     </div>
     
     <div class="confirmation-section">
+        <h3>Payment Information</h3>
+        <div class="info-row">
+            <span class="info-label">Payment Method:</span> 
+            <?php 
+            if (($order['paymentMethod'] ?? 'card') === 'paypal') {
+                echo '🅿️ PayPal';
+                if (!empty($order['paypalEmail'])) {
+                    echo ' (' . htmlspecialchars($order['paypalEmail']) . ')';
+                }
+            } else {
+                echo '💳 Credit Card';
+            }
+            ?>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Amount Charged:</span> $<?php echo number_format($order['total'], 2); ?>
+        </div>
+    </div>
+    
+    <div class="confirmation-section">
         <h3>Shipping Address</h3>
         <div class="info-row">
             <span class="info-label"><?php echo htmlspecialchars($order['shippingName']); ?></span>

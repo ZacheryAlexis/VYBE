@@ -21,6 +21,12 @@ function init_secure_session() {
     // Use stronger session ID
     ini_set('session.sid_length', 48);
     ini_set('session.sid_bits_per_character', 6);
+    
+    // Session expires when browser closes (don't persist across restarts)
+    ini_set('session.cookie_lifetime', 0);
+    
+    // Session data expires after 30 minutes of inactivity
+    ini_set('session.gc_maxlifetime', 1800);
 }
 
 /**

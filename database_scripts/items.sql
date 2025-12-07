@@ -4,18 +4,22 @@ CREATE TABLE IF NOT EXISTS items (
  categoryID       INT(11)        NOT NULL,
  listPrice        DECIMAL(10,2)  NOT NULL,
  description      TEXT,
+ stockQuantity    INT(11)        DEFAULT 0,
  PRIMARY KEY (itemID)
 );
 
--- Sample perfume items for Vybe
+-- Clear old items first
+DELETE FROM items WHERE itemID IN (2000, 2001, 2002, 2003, 2004);
+
+-- Sample perfume items for Vybe - Matched to Quiz Results
 INSERT INTO items
-(itemID, itemName, categoryID, listPrice, description)
+(itemID, itemName, categoryID, listPrice, description, stockQuantity)
 VALUES
-(2000, 'Vybe Essence — Signature', 10, 39.99, 'A fresh woody-amber scent made for daytime classes and after-hours hangs.'),
-(2001, 'Vybe Pocket Mist — Travel', 20, 9.99, 'Compact spray for quick refresh between lectures.'),
-(2002, 'Vybe Night Swipe — Limited', 30, 49.99, 'Bold nocturnal fragrance with spicy and musk notes.'),
-(2003, 'Vybe Campus Fresh — Budget', 40, 14.99, 'Affordable, uplifting citrus scent for everyday use.'),
-(2004, 'Vybe Study Blend — Focus', 10, 24.99, 'Subtle green and citrus accord designed to uplift focus.');
+(2000, 'VYBE Signature', 10, 39.99, 'Lavender + Pear. Calm and balanced for the collected soul. Perfect for those peaceful mornings and quiet study corners.', 25),
+(2001, 'Study Session', 10, 34.99, 'Peppermint + Eucalyptus. Sharp focus and mental clarity. Built for the library grind and those long study hours.', 30),
+(2002, 'Freshman Sunrise', 10, 29.99, 'Citrus + Green Tea. Bright, energetic, ready to go. Fresh like a beach day or sunny outdoor spot.', 0),
+(2003, 'All-Nighter', 10, 44.99, 'Cedar + Amber. Warm, cozy, confident. The mature friend at the café with long-lasting presence.', 15),
+(2004, 'Dorm Crush', 10, 32.99, 'Peach + Hibiscus. Fun, sweet, youthful. For the extroverted social butterfly at every campus event.', 20);
 
 SELECT * from items;
 

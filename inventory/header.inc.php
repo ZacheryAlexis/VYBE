@@ -253,7 +253,9 @@
     <?php if (empty($_SESSION['user_id'])) { ?>
       <a href="index.php?content=user_login">Account</a>
     <?php } else { ?>
-      <span>Welcome, <strong><?php echo htmlspecialchars($_SESSION['user_name']); ?></strong></span>
+      <a href="index.php?content=profile">My Profile</a>
+      <a href="index.php?content=wishlist" title="Wishlist">♥ Wishlist</a>
+      <a href="index.php?content=orderhistory">Orders</a>
     <?php } ?>
   </div>
   <div class="right">

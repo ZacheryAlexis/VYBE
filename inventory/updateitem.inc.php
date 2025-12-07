@@ -53,22 +53,22 @@ if (empty($_SESSION['is_admin'])) {
                    
                    <label style="color: var(--vybe-text); font-weight: 500;">Name:</label>
                    <input type="text" name="itemName" value="<?php echo htmlspecialchars($item->itemName); ?>" required 
-                          style="padding: 10px; background: var(--vybe-bg); color: var(--vybe-text); border: 1px solid var(--vybe-navy); border-radius: 6px; font-size: 1rem;">
+                          style="padding: 10px; background: var(--vybe-bg); color: var(--vybe-text); border: 1px solid rgba(199,185,255,0.3); border-radius: 6px; font-size: 1rem;">
                    
                    <label style="color: var(--vybe-text); font-weight: 500;">Category ID:</label>
                    <input type="number" name="categoryID" value="<?php echo $item->categoryID; ?>" required 
-                          style="padding: 10px; background: var(--vybe-bg); color: var(--vybe-text); border: 1px solid var(--vybe-navy); border-radius: 6px; font-size: 1rem;">
+                          style="padding: 10px; background: var(--vybe-bg); color: var(--vybe-text); border: 1px solid rgba(199,185,255,0.3); border-radius: 6px; font-size: 1rem;">
                    
                    <label style="color: var(--vybe-text); font-weight: 500;">List Price:</label>
                    <input type="number" name="listPrice" step="0.01" value="<?php echo $item->listPrice; ?>" required 
-                          style="padding: 10px; background: var(--vybe-bg); color: var(--vybe-text); border: 1px solid var(--vybe-navy); border-radius: 6px; font-size: 1rem;">
+                          style="padding: 10px; background: var(--vybe-bg); color: var(--vybe-text); border: 1px solid rgba(199,185,255,0.3); border-radius: 6px; font-size: 1rem;">
                </div>
                
                <div style="display: flex; gap: 10px;">
                    <input type="submit" name="answer" value="Update Item" 
                           style="background: var(--vybe-orange); color: white; padding: 12px 30px; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer;">
                    <input type="submit" name="answer" value="Cancel" 
-                          style="background: var(--vybe-navy); color: white; padding: 12px 30px; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer;">
+                          style="background: rgba(199,185,255,0.2); color: var(--vybe-text); padding: 12px 30px; border: 1px solid rgba(199,185,255,0.4); border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer;">
                </div>
                <input type="hidden" name="itemID" value="<?php echo $itemID; ?>">
                <input type="hidden" name="content" value="changeitem">

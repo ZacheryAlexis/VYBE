@@ -23,7 +23,7 @@
     
     <form name="categories" method="post">
         <select ondblclick="listbox_dblclick()" name="categoryID" size="15" 
-                style="width: 100%; padding: 12px; background: var(--vybe-bg); color: var(--vybe-text); border: 1px solid var(--vybe-navy); border-radius: 8px; font-size: 1rem; margin-bottom: 15px;">
+                style="width: 100%; padding: 12px; background: var(--vybe-bg); color: var(--vybe-text); border: 1px solid rgba(199,185,255,0.3); border-radius: 8px; font-size: 1rem; margin-bottom: 15px;">
 <?php
 $categories = Category::getCategories();
 foreach($categories as $category) {
@@ -41,7 +41,7 @@ foreach($categories as $category) {
             <input type="submit" onClick="button_click(1)" name="deletecategory" value="Delete Category" 
                    style="background: #d32f2f; color: white; padding: 12px 24px; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer;">
             <input type="submit" onClick="button_click(2)" name="updatecategory" value="Update Category" 
-                   style="background: var(--vybe-navy); color: white; padding: 12px 24px; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer;">
+                   style="background: #b8a3ff; color: white; padding: 12px 24px; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer;">
             <?php } ?>
         </div>
     </form>

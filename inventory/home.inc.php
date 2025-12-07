@@ -14,7 +14,11 @@ if (!empty($_SESSION['matched_scent']) && !empty($_SESSION['quiz_completed'])) {
   <h2 style="margin-top:0; color:var(--vybe-orange);">🎉 Your Vybe Match: <?php echo htmlspecialchars($matchedScent); ?></h2>
   <p style="color:var(--vybe-text);">Based on your answers, this scent matches your personality perfectly!</p>
   <?php if ($matchedItemID): ?>
-    <p><a class="accent-link" href="index.php?content=displayitem&itemID=<?php echo $matchedItemID; ?>" style="font-size:1.1rem; font-weight:600;">View Your Match →</a></p>
+    <p>
+      <a class="accent-link" href="index.php?content=quizresults" style="font-size:1.1rem; font-weight:600;">View Full Results →</a>
+      &nbsp;•&nbsp;
+      <a class="accent-link" href="index.php?content=displayitem&itemID=<?php echo $matchedItemID; ?>" style="font-size:1.1rem; font-weight:600;">Shop Your Match →</a>
+    </p>
   <?php endif; ?>
 </div>
 <?php endif; ?>
