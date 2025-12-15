@@ -97,6 +97,11 @@ function hash_password($password) {
  * @return bool True if password matches
  */
 function verify_password($password, $hash) {
+    // Support legacy SHA2-256 hex hashes (length 64) and modern bcrypt hashes.
+    if (is_string($hash) && preg_match('/^[0-9a-f]{64}$/i', $hash)) {
+        // Legacy SHA-256 hex stored in DB
+        return hash('sha256', $password) === strtolower($hash);
+    }
     return password_verify($password, $hash);
 }
 

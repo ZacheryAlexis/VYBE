@@ -102,10 +102,19 @@ include("item.php");
        </nav>
        <main>
            <?php
-           if (isset($_REQUEST['content'])) {
-               include($_REQUEST['content'] . ".inc.php");
-           } else {
-               include("home.inc.php");
+           try {
+               if (isset($_REQUEST['content'])) {
+                   include($_REQUEST['content'] . ".inc.php");
+               } else {
+                   include("home.inc.php");
+               }
+           } catch (Throwable $e) {
+               // Log the exception and show a friendly message instead of a blank page
+               error_log('Unhandled exception rendering page: ' . $e->getMessage());
+               echo '<div style="max-width:800px;margin:40px auto;padding:20px;background:#141417;border-radius:10px;border:1px solid rgba(199,185,255,0.06);">';
+               echo '<h2 style="color: var(--vybe-orange);">Server Error</h2>';
+               echo '<p style="color: var(--vybe-muted);">We encountered a server error while loading this page. Please try again later.</p>';
+               echo '</div>';
            }
            ?>
        </main>
