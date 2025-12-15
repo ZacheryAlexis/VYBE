@@ -148,6 +148,47 @@ class Item
            return NULL;
        }
    }
+   /**
+    * Return array of variants for a given itemID. Each variant is associative array.
+    */
+   static function getVariants($itemID)
+   {
+       $db = getDB();
+       $query = "SELECT variantID, sizeLabel, price, stockQuantity, imageSuffix FROM item_variants WHERE itemID = ?";
+       $stmt = $db->prepare($query);
+       if (!$stmt) {
+           $db->close();
+           return array();
+       }
+       $stmt->bind_param('i', $itemID);
+       $stmt->execute();
+       $result = $stmt->get_result();
+       $variants = array();
+       while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
+           $variants[] = $row;
+       }
+       $stmt->close();
+       $db->close();
+       return $variants;
+   }
+
+   static function getVariantByID($variantID)
+   {
+       $db = getDB();
+       $query = "SELECT variantID, itemID, sizeLabel, price, stockQuantity, imageSuffix FROM item_variants WHERE variantID = ?";
+       $stmt = $db->prepare($query);
+       if (!$stmt) {
+           $db->close();
+           return NULL;
+       }
+       $stmt->bind_param('i', $variantID);
+       $stmt->execute();
+       $result = $stmt->get_result();
+       $row = $result->fetch_array(MYSQLI_ASSOC);
+       $stmt->close();
+       $db->close();
+       return $row ?: NULL;
+   }
    static function getTotalItems()
 {
    $db = getDB();

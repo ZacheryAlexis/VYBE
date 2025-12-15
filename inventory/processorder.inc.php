@@ -87,8 +87,8 @@ $stmt = $db->prepare("
                        subtotal, tax, total, paymentMethod, orderDate, orderStatus)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
 ");
-$stmt->bind_param('sissssddds', $orderNumber, $userID, $email, $fullName, $shippingAddressFull, 
-                  $phone, $total, $tax, $grandTotal, $paymentMethod, $orderDate);
+ $stmt->bind_param('sissssdddss', $orderNumber, $userID, $email, $fullName, $shippingAddressFull, 
+                   $phone, $total, $tax, $grandTotal, $paymentMethod, $orderDate);
 $stmt->execute();
 $orderID = $db->insert_id;
 $stmt->close();
@@ -99,8 +99,16 @@ $itemStmt = $db->prepare("
     VALUES (?, ?, ?, ?, ?)
 ");
 
+require_once('item.php');
 foreach ($cart as $item) {
-    $itemStmt->bind_param('iisid', $orderID, $item['itemID'], $item['itemName'], 
+    $orderItemName = $item['itemName'];
+    if (!empty($item['variantID'])) {
+        $v = Item::getVariantByID(intval($item['variantID']));
+        if ($v && !empty($v['sizeLabel'])) {
+            $orderItemName = $v['sizeLabel'] . ' — ' . $orderItemName;
+        }
+    }
+    $itemStmt->bind_param('iisid', $orderID, $item['itemID'], $orderItemName, 
                          $item['quantity'], $item['listPrice']);
     $itemStmt->execute();
 }

@@ -16,37 +16,57 @@ if (!isset($_SESSION['cart'])) {
     $_SESSION['cart'] = array();
 }
 
-$itemID = $_POST['itemID'] ?? null;
-$quantity = intval($_POST['quantity'] ?? 1);
-$fromWishlist = isset($_POST['from_wishlist']);
+ $itemID = $_POST['itemID'] ?? null;
+ $variantID = isset($_POST['variantID']) && $_POST['variantID'] !== '' ? intval($_POST['variantID']) : null;
+ $quantity = intval($_POST['quantity'] ?? 1);
+ $fromWishlist = isset($_POST['from_wishlist']);
 
 if ($itemID && is_numeric($itemID)) {
-    $item = Item::findItem($itemID);
-    
-    if ($item) {
-        // Check stock availability
-        if ($item->stockQuantity <= 0) {
+    // If a variant was selected, load variant info
+    $variant = null;
+    if ($variantID) {
+        $variant = Item::getVariantByID($variantID);
+    }
+
+    if ($variant) {
+        $sellPrice = $variant['price'];
+        $available = intval($variant['stockQuantity']);
+        $displayName = $variant['sizeLabel'] . ' — ' . Item::findItem($variant['itemID'])->itemName;
+    } else {
+        $item = Item::findItem($itemID);
+        if (!$item) {
+            echo "<h3>Item not found.</h3>";
+            return;
+        }
+        $sellPrice = $item->listPrice;
+        $available = $item->stockQuantity;
+        $displayName = $item->itemName;
+    }
+
+    // Check stock availability
+    if ($available <= 0) {
             if ($fromWishlist) {
-                $_SESSION['cart_message'] = 'Sorry, ' . htmlspecialchars($item->itemName) . ' is out of stock.';
+                $_SESSION['cart_message'] = 'Sorry, ' . htmlspecialchars($displayName) . ' is out of stock.';
                 header('Location: index.php?content=wishlist');
                 exit();
             }
             echo "<div class='panel' style='border: 2px solid #f56565;'>";
             echo "<h2 style='color: #f56565;'>Out of Stock</h2>";
-            echo "<p><strong>" . htmlspecialchars($item->itemName) . "</strong> is currently out of stock.</p>";
+            echo "<p><strong>" . htmlspecialchars($displayName) . "</strong> is currently out of stock.</p>";
             echo "<p><a class='accent-link' href='index.php?content=listitems'>Continue Shopping</a></p>";
             echo "</div>";
             return;
         }
         
         // Check if requested quantity exceeds stock
+        $key = $itemID . ($variantID ? ':v' . $variantID : '');
         $requestedQty = $quantity;
-        if (isset($_SESSION['cart'][$itemID])) {
-            $requestedQty += $_SESSION['cart'][$itemID]['quantity'];
+        if (isset($_SESSION['cart'][$key])) {
+            $requestedQty += $_SESSION['cart'][$key]['quantity'];
         }
         
-        if ($requestedQty > $item->stockQuantity) {
-            $quantity = $item->stockQuantity - ($_SESSION['cart'][$itemID]['quantity'] ?? 0);
+        if ($requestedQty > $available) {
+            $quantity = $available - ($_SESSION['cart'][$key]['quantity'] ?? 0);
             if ($quantity <= 0) {
                 if ($fromWishlist) {
                     $_SESSION['cart_message'] = 'Maximum available quantity already in cart.';
@@ -62,14 +82,15 @@ if ($itemID && is_numeric($itemID)) {
             }
         }
         
-        // Check if item already in cart
-        if (isset($_SESSION['cart'][$itemID])) {
-            $_SESSION['cart'][$itemID]['quantity'] += $quantity;
+        // Check if item+variant already in cart
+        if (isset($_SESSION['cart'][$key])) {
+            $_SESSION['cart'][$key]['quantity'] += $quantity;
         } else {
-            $_SESSION['cart'][$itemID] = array(
-                'itemID' => $item->itemID,
-                'itemName' => $item->itemName,
-                'listPrice' => $item->listPrice,
+            $_SESSION['cart'][$key] = array(
+                'itemID' => $itemID,
+                'variantID' => $variantID,
+                'itemName' => $displayName,
+                'listPrice' => $sellPrice,
                 'quantity' => $quantity
             );
         }
@@ -81,23 +102,21 @@ if ($itemID && is_numeric($itemID)) {
         
         // Redirect if from wishlist
         if ($fromWishlist) {
-            $_SESSION['cart_message'] = htmlspecialchars($item->itemName) . ' added to cart!';
+            $_SESSION['cart_message'] = htmlspecialchars($displayName) . ' added to cart!';
             header('Location: index.php?content=wishlist');
             exit();
         }
         
         echo "<div class='panel' style='border: 2px solid var(--vybe-orange);'>";
         echo "<h2 style='color: var(--vybe-orange);'>✓ Added to Cart</h2>";
-        echo "<p><strong>" . htmlspecialchars($item->itemName) . "</strong> has been added to your cart.";
-        if ($requestedQty > $item->stockQuantity) {
+        echo "<p><strong>" . htmlspecialchars($displayName) . "</strong> has been added to your cart.";
+        if ($requestedQty > $available) {
             echo " <span style='color: #ed8936;'>(Only " . $quantity . " available)</span>";
         }
         echo "</p>";
         echo "<p><a class='accent-link' href='index.php?content=cart'>View Cart</a> &nbsp;•&nbsp; <a class='accent-link' href='index.php?content=listitems'>Continue Shopping</a></p>";
         echo "</div>";
-    } else {
-        echo "<h3>Item not found.</h3>";
-    }
+    
 } else {
     echo "<h3>Invalid item.</h3>";
 }

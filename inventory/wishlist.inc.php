@@ -11,15 +11,43 @@ if (!isset($_SESSION['user_id'])) {
 require_once('database.php');
 
 $db = getDB();
-$stmt = $db->prepare("
-    SELECT w.wishlistID, w.itemID, w.addedDate, i.itemName, i.listPrice, i.description, i.stockQuantity, c.categoryName
-    FROM wishlist w
-    JOIN items i ON w.itemID = i.itemID
-    LEFT JOIN categories c ON i.categoryID = c.categoryID
-    WHERE w.userID = ?
-    ORDER BY w.addedDate DESC
-");
-$stmt->bind_param('i', $_SESSION['user_id']);
+
+// Detect if wishlist table has variantID column (migration may not have been run)
+$hasVariantColumn = false;
+try {
+    $colRes = $db->query("SHOW COLUMNS FROM wishlist LIKE 'variantID'");
+    if ($colRes && $colRes->num_rows > 0) {
+        $hasVariantColumn = true;
+    }
+} catch (Exception $e) {
+    $hasVariantColumn = false;
+}
+
+if ($hasVariantColumn) {
+    $stmt = $db->prepare("
+        SELECT w.wishlistID, w.itemID, w.variantID, w.addedDate, i.itemName, i.listPrice, i.description, i.stockQuantity, c.categoryName,
+               iv.sizeLabel AS variantSize, iv.price AS variantPrice, iv.stockQuantity AS variantStock, iv.imageSuffix
+        FROM wishlist w
+        JOIN items i ON w.itemID = i.itemID
+        LEFT JOIN categories c ON i.categoryID = c.categoryID
+        LEFT JOIN item_variants iv ON w.variantID = iv.variantID
+        WHERE w.userID = ?
+        ORDER BY w.addedDate DESC
+    ");
+    $stmt->bind_param('i', $_SESSION['user_id']);
+} else {
+    // Fall back to previous schema without variant support
+    $stmt = $db->prepare("
+        SELECT w.wishlistID, w.itemID, w.addedDate, i.itemName, i.listPrice, i.description, i.stockQuantity, c.categoryName
+        FROM wishlist w
+        JOIN items i ON w.itemID = i.itemID
+        LEFT JOIN categories c ON i.categoryID = c.categoryID
+        WHERE w.userID = ?
+        ORDER BY w.addedDate DESC
+    ");
+    $stmt->bind_param('i', $_SESSION['user_id']);
+}
+
 $stmt->execute();
 $result = $stmt->get_result();
 $wishlistItems = $result->fetch_all(MYSQLI_ASSOC);
@@ -228,7 +256,8 @@ $db->close();
             <?php foreach ($wishlistItems as $item): ?>
                 <div class="wishlist-item">
                     <?php
-                    $stockQty = $item['stockQuantity'];
+                    // Prefer variant stock and price if present
+                    $stockQty = isset($item['variantStock']) && $item['variantStock'] !== null ? intval($item['variantStock']) : intval($item['stockQuantity']);
                     if ($stockQty <= 0) {
                         echo '<span class="stock-badge out-of-stock">Out of Stock</span>';
                     } elseif ($stockQty < 10) {
@@ -238,22 +267,58 @@ $db->close();
                     }
                     ?>
                     
+                    <?php
+                    // Determine image path (png first, then svg), fallback to items.png
+                    $baseName = str_replace(' ', '_', $item['itemName']);
+                    // If a variant provides an imageSuffix (e.g., '_mini'), append it
+                    $suffix = isset($item['imageSuffix']) && $item['imageSuffix'] ? $item['imageSuffix'] : '';
+                    $baseWithSuffix = $baseName . $suffix;
+                    $pngPathFs = __DIR__ . '/images/' . $baseName . '.png';
+                    $svgPathFs = __DIR__ . '/images/' . $baseName . '.svg';
+                    $pngPathFs2 = __DIR__ . '/images/' . $baseWithSuffix . '.png';
+                    $svgPathFs2 = __DIR__ . '/images/' . $baseWithSuffix . '.svg';
+                    $pngWeb = 'images/' . $baseWithSuffix . '.png';
+                    $svgWeb = 'images/' . $baseWithSuffix . '.svg';
+                    // Prefer suffixed variant images, then base images, then fallback
+                    if (file_exists($pngPathFs2)) {
+                        $imgPath = $pngWeb;
+                    } elseif (file_exists($svgPathFs2)) {
+                        $imgPath = $svgWeb;
+                    } elseif (file_exists($pngPathFs)) {
+                        $imgPath = 'images/' . $baseName . '.png';
+                    } elseif (file_exists($svgPathFs)) {
+                        $imgPath = 'images/' . $baseName . '.svg';
+                    } else {
+                        $imgPath = 'images/items.png';
+                    }
+                    ?>
+
+                    <div style="height:160px; display:flex; align-items:center; justify-content:center; overflow:hidden; background: linear-gradient(180deg, rgba(199,185,255,0.03), rgba(199,185,255,0.01));">
+                        <img src="<?php echo htmlspecialchars($imgPath); ?>" alt="<?php echo htmlspecialchars($item['itemName']); ?>" style="max-height:140px; width:auto; object-fit:contain;">
+                    </div>
+
                     <div class="wishlist-item-header">
-                        <h3 class="wishlist-item-name"><?php echo htmlspecialchars($item['itemName']); ?></h3>
+                        <h3 class="wishlist-item-name"><?php echo htmlspecialchars($item['itemName']); ?><?php echo !empty($item['variantSize']) ? ' — ' . htmlspecialchars($item['variantSize']) : ''; ?></h3>
                         <?php if (!empty($item['categoryName'])): ?>
                             <span class="wishlist-item-category"><?php echo htmlspecialchars($item['categoryName']); ?></span>
                         <?php endif; ?>
                     </div>
                     
                     <div class="wishlist-item-body">
-                        <p class="wishlist-item-description"><?php echo htmlspecialchars($item['description']); ?></p>
-                        <div class="wishlist-item-price">$<?php echo number_format($item['listPrice'], 2); ?></div>
+                                                <p class="wishlist-item-description"><?php echo htmlspecialchars($item['description']); ?></p>
+                                                <div class="wishlist-item-price">$
+                                                    <?php
+                                                        $displayPrice = isset($item['variantPrice']) && $item['variantPrice'] !== null ? $item['variantPrice'] : $item['listPrice'];
+                                                        echo number_format($displayPrice, 2);
+                                                    ?>
+                                                </div>
                         
                         <div class="wishlist-item-actions">
                             <?php if ($stockQty > 0): ?>
                                 <form method="post" action="index.php?content=addtocart" style="margin: 0;">
                                     <?php require_once('security.php'); csrf_field(); ?>
                                     <input type="hidden" name="itemID" value="<?php echo $item['itemID']; ?>">
+                                    <input type="hidden" name="variantID" value="<?php echo htmlspecialchars($item['variantID'] ?? ''); ?>">
                                     <input type="hidden" name="quantity" value="1">
                                     <input type="hidden" name="from_wishlist" value="1">
                                     <button type="submit" class="add-to-cart-btn">Add to Cart</button>

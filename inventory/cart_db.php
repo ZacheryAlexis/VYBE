@@ -41,7 +41,12 @@ function loadCartFromDB($userID) {
         $cart = array();
         foreach ($cartArray as $item) {
             if (isset($item['itemID'])) {
-                $cart[$item['itemID']] = $item;
+                // Build a composite key when variantID exists
+                $key = $item['itemID'];
+                if (isset($item['variantID']) && $item['variantID']) {
+                    $key = $key . ':v' . $item['variantID'];
+                }
+                $cart[$key] = $item;
             }
         }
         return $cart;
