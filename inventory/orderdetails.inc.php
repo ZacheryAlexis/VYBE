@@ -250,8 +250,17 @@ $db->close();
             </thead>
             <tbody>
                 <?php foreach ($items as $item): ?>
+                    <?php
+                    // Normalize display name to avoid duplicated size labels like "10ml — 10ml — Name"
+                    $displayName = $item['itemName'];
+                    // Collapse repeated leading segments of the form "X — X — ..." into a single "X — ..."
+                    // Repeat until no further duplication is found (covers rare multiple repeats).
+                    while (preg_match('/^(.*?)\s+—\s+\1\s+—\s+(.*)$/u', $displayName, $m)) {
+                        $displayName = $m[1] . ' — ' . $m[2];
+                    }
+                    ?>
                     <tr>
-                        <td><?php echo htmlspecialchars($item['itemName']); ?></td>
+                        <td><?php echo htmlspecialchars($displayName); ?></td>
                         <td style="text-align: center;"><?php echo $item['quantity']; ?></td>
                         <td style="text-align: right;">$<?php echo number_format($item['price'], 2); ?></td>
                         <td style="text-align: right;">$<?php echo number_format($item['price'] * $item['quantity'], 2); ?></td>

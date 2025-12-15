@@ -1,5 +1,6 @@
 <?php
 require_once('security.php');
+require_once('item.php');
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -30,7 +31,7 @@ $total = 0;
 }
 .cart-item {
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr auto;
+    grid-template-columns: 120px 2fr 1fr 1fr 1fr auto;
     gap: 15px;
     align-items: center;
     padding: 20px;
@@ -45,6 +46,15 @@ $total = 0;
     font-weight: 600;
     color: var(--vybe-text);
     font-family: 'Avenir', 'Avenir Next', sans-serif;
+}
+.cart-item-image {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    border-radius: 8px;
+    background: #0f0f11;
+    padding: 8px;
+    display: block;
 }
 .cart-item-price {
     color: var(--vybe-muted);
@@ -146,6 +156,46 @@ $total = 0;
             $total += $itemTotal;
             ?>
             <div class="cart-item">
+                <?php
+                // Determine image for this cart row. Prefer variant imageSuffix when present.
+                $imgPath = 'images/items.png';
+                $origID = intval($item['itemID'] ?? $itemID);
+                $variantID = !empty($item['variantID']) ? intval($item['variantID']) : null;
+                $baseName = '';
+                $variant = null;
+                $origItemObj = null;
+                if ($origID) {
+                    $origItemObj = Item::findItem($origID);
+                }
+                if ($variantID) {
+                    try { $variant = Item::getVariantByID($variantID); } catch (Exception $e) { $variant = null; }
+                }
+                if ($origItemObj) {
+                    $baseName = str_replace(' ', '_', $origItemObj->itemName);
+                    $basePngFs = __DIR__ . '/images/' . $baseName . '.png';
+                    $baseSvgFs = __DIR__ . '/images/' . $baseName . '.svg';
+                    // Try variant-specific
+                    if (!empty($variant['imageSuffix'])) {
+                        $sfx = $variant['imageSuffix'];
+                        $pngFs = __DIR__ . '/images/' . $baseName . $sfx . '.png';
+                        $svgFs = __DIR__ . '/images/' . $baseName . $sfx . '.svg';
+                        if (file_exists($pngFs)) {
+                            $imgPath = 'images/' . $baseName . $sfx . '.png';
+                        } elseif (file_exists($svgFs)) {
+                            $imgPath = 'images/' . $baseName . $sfx . '.svg';
+                        }
+                    }
+                    // fallback to base
+                    if ($imgPath === 'images/items.png') {
+                        if (file_exists($basePngFs)) {
+                            $imgPath = 'images/' . $baseName . '.png';
+                        } elseif (file_exists($baseSvgFs)) {
+                            $imgPath = 'images/' . $baseName . '.svg';
+                        }
+                    }
+                }
+                ?>
+                <div><img class="cart-item-image" src="<?php echo htmlspecialchars($imgPath); ?>" alt="<?php echo htmlspecialchars($item['itemName']); ?>"></div>
                 <div class="cart-item-name"><?php echo htmlspecialchars($item['itemName']); ?></div>
                 <div class="cart-item-price">$<?php echo number_format($item['listPrice'], 2); ?></div>
                 <div class="cart-qty-control">

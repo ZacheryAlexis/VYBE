@@ -105,7 +105,13 @@ foreach ($cart as $item) {
     if (!empty($item['variantID'])) {
         $v = Item::getVariantByID(intval($item['variantID']));
         if ($v && !empty($v['sizeLabel'])) {
-            $orderItemName = $v['sizeLabel'] . ' — ' . $orderItemName;
+            $sizeLabel = trim($v['sizeLabel']);
+            // Avoid duplicating the size label if it's already part of the itemName
+            $normalized = trim($orderItemName);
+            // If the itemName doesn't already start with the size label, prepend it
+            if (stripos($normalized, $sizeLabel) !== 0) {
+                $orderItemName = $sizeLabel . ' — ' . $orderItemName;
+            }
         }
     }
     $itemStmt->bind_param('iisid', $orderID, $item['itemID'], $orderItemName, 

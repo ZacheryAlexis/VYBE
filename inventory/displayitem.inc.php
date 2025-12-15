@@ -52,7 +52,7 @@ if (!isset($_REQUEST['itemID']) or (!is_numeric($_REQUEST['itemID']))) {
        </p>
 
        <div style="display:flex; justify-content:center; margin-bottom: 12px;">
-           <img id="productImage" src="<?php echo htmlspecialchars($imgPath); ?>" alt="<?php echo htmlspecialchars($item->itemName); ?>" style="width:220px; max-width:48%; max-height:260px; object-fit:contain; border-radius: 10px; border: 8px solid white; background: #111; padding: 8px; box-shadow: 0 6px 18px rgba(0,0,0,0.55);">
+           <img id="productImage" src="<?php echo htmlspecialchars($imgPath); ?>" alt="<?php echo htmlspecialchars($item->itemName); ?>" style="width:320px; max-width:70%; max-height:420px; object-fit:contain; border-radius: 10px; border: 14px solid white; background: #111; padding: 16px; box-shadow: 0 10px 28px rgba(0,0,0,0.65);">
        </div>
 
     <div style="display: flex; gap: 8px; align-items: flex-end; margin: 16px 0;">
@@ -78,7 +78,7 @@ if (!isset($_REQUEST['itemID']) or (!is_numeric($_REQUEST['itemID']))) {
                    <select id="variantSelect" data-original-price="<?php echo htmlspecialchars(number_format($item->listPrice,2)); ?>" data-base-name="<?php echo htmlspecialchars($baseName); ?>" style="padding:8px; border-radius:8px; background: var(--vybe-bg); color: var(--vybe-text); border:1px solid rgba(199,185,255,0.3); width:110px;">
                        <option value="">50ml</option>
                        <?php foreach ($variants as $v): ?>
-                           <option value="<?php echo $v['variantID']; ?>" data-price="<?php echo $v['price']; ?>" data-stock="<?php echo $v['stockQuantity']; ?>" data-suffix="<?php echo htmlspecialchars($v['imageSuffix']); ?>"><?php echo htmlspecialchars($v['sizeLabel']) . ' — $' . number_format($v['price'],2); ?></option>
+                           <option value="<?php echo $v['variantID']; ?>" data-price="<?php echo $v['price']; ?>" data-stock="<?php echo $v['stockQuantity']; ?>" data-suffix="<?php echo htmlspecialchars($v['imageSuffix']); ?>"><?php echo htmlspecialchars($v['sizeLabel']); ?></option>
                        <?php endforeach; ?>
                    </select>
                </div>
