@@ -109,11 +109,25 @@ include("item.php");
                    include("home.inc.php");
                }
            } catch (Throwable $e) {
-               // Log the exception and show a friendly message instead of a blank page
+               // Log the exception to the PHP error log and to a local app log so server admins can inspect it.
                error_log('Unhandled exception rendering page: ' . $e->getMessage());
+               // Attempt to write a local log file under inventory/logs/error.log (non-fatal)
+               $logDir = __DIR__ . '/logs';
+               if (!is_dir($logDir)) {
+                   @mkdir($logDir, 0700, true);
+               }
+               $logFile = $logDir . '/error.log';
+               $entry = "[" . date('c') . "] Unhandled exception: " . $e->getMessage() . "\n";
+               $entry .= $e->getTraceAsString() . "\n\n";
+               @file_put_contents($logFile, $entry, FILE_APPEND | LOCK_EX);
+
                echo '<div style="max-width:800px;margin:40px auto;padding:20px;background:#141417;border-radius:10px;border:1px solid rgba(199,185,255,0.06);">';
                echo '<h2 style="color: var(--vybe-orange);">Server Error</h2>';
                echo '<p style="color: var(--vybe-muted);">We encountered a server error while loading this page. Please try again later.</p>';
+               // If admin session present, show a hint to check the local log
+               if (session_status() === PHP_SESSION_ACTIVE && !empty($_SESSION['is_admin'])) {
+                   echo '<p style="color: var(--vybe-muted); font-size:0.9rem;">Admin: check <strong>inventory/logs/error.log</strong> for details.</p>';
+               }
                echo '</div>';
            }
            ?>
