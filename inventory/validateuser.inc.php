@@ -81,6 +81,16 @@ if ($isAdmin && verify_password($password, $storedHash)) {
     
     // Clear rate limit
     clear_rate_limit($email);
+    // If stored admin password was a legacy SHA256 hex, rehash to bcrypt for future logins
+    if (is_string($storedHash) && preg_match('/^[0-9a-f]{64}$/i', $storedHash)) {
+        $newHash = hash_password($password);
+        $upd = $db->prepare("UPDATE admins SET password = ? WHERE adminID = ?");
+        if ($upd) {
+            $upd->bind_param('si', $newHash, $adminID);
+            $upd->execute();
+            $upd->close();
+        }
+    }
     
     header('Location: index.php');
     exit();
@@ -130,6 +140,21 @@ if ($fetched && verify_password($password, $storedHash)) {
     
     // Clear rate limit
     clear_rate_limit($email);
+
+    // If stored user password was a legacy SHA256 hex, rehash to bcrypt for future logins
+    if (is_string($storedHash) && preg_match('/^[0-9a-f]{64}$/i', $storedHash)) {
+        $newHash = hash_password($password);
+        $db = getDB();
+        if ($db) {
+            $upd = $db->prepare("UPDATE users SET password = ? WHERE userID = ?");
+            if ($upd) {
+                $upd->bind_param('si', $newHash, $userID);
+                $upd->execute();
+                $upd->close();
+            }
+            $db->close();
+        }
+    }
     
     // Load saved cart from database
     require_once('cart_db.php');
